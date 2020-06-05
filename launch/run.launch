@@ -1,0 +1,8 @@
+<launch>
+  <arg name="run" default=""/>
+
+  <node pkg="menguiin_bot2" type="motor_on" name="motor_on"/>
+
+  <node pkg="menguiin_bot2" type="go_stop" name="go_stop"/>
+
+</launch>
