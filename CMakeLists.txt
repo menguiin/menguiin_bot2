@@ -70,10 +70,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   sensor_msgs#   std_msgs
- )
+# generate_messages(
+#   DEPENDENCIES
+#   sensor_msgs#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -159,6 +159,7 @@ target_link_libraries(motor_on ${catkin_LIBRARIES})
 add_executable(go_stop src/go_stop.cpp)
 add_dependencies(go_stop ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(go_stop ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##
