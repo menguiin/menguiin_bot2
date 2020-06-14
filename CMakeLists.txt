@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   geometry_msgs
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -155,10 +156,6 @@ include_directories(
 add_executable(motor_on src/motor_on.cpp)
 add_dependencies(motor_on ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(motor_on ${catkin_LIBRARIES})
-
-add_executable(go_stop src/go_stop.cpp)
-add_dependencies(go_stop ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(go_stop ${catkin_LIBRARIES})
 
 
 #############

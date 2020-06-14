@@ -33,11 +33,11 @@ def clbk_laser(msg):
             scan_filter[i] = 3.5
 
     regions_ = {
-        'right':  min(min(scan_filter[80:120]), 3.5),
-        'fright': min(min(scan_filter[121:160]), 3.5),
-        'front':  min(min(scan_filter[161:200]), 3.5),
-        'fleft':  min(min(scan_filter[201:240]), 3.5),
-        'left':   min(min(scan_filter[241:280]), 3.5),
+        # 'right':  min(min(scan_filter[80:120]), 3.5),
+        'fright': min(min(scan_filter[90:150]), 3.5),
+        'front':  min(min(scan_filter[151:210]), 3.5),
+        'fleft':  min(min(scan_filter[211:270]), 3.5),
+        # 'left':   min(min(scan_filter[241:280]), 3.5),
     }
 
     take_action()
