@@ -40,7 +40,7 @@ class VFH():
             repulsive_force_ = np.zeros((360, 2), dtype=float)
             attracting_force = []
             # repulsive
-            for i in range(0, 359):
+            for i in range(90, 270):
                 repulsive_force_[i] = [(x_start - lidar_xy[i, 0])/distance_obs[i], (y_start - lidar_xy[i, 1])/distance_obs[i]]
             repulsive_force = np.sum(repulsive_force_, axis=0)
             vector_size = np.linalg.norm([velocity[0], velocity[1]])*np.linalg.norm(repulsive_force)
@@ -80,7 +80,7 @@ class VFH():
         for j in range(0, 359):
             lidar_xy[j, 0] = lidar_polar[j, 1] * cos(np.deg2rad(lidar_polar[j, 0]))
             lidar_xy[j, 1] = lidar_polar[j, 1] * sin(np.deg2rad(lidar_polar[j, 0]))
-            distance[j] = sqrt(pow(lidar_xy[j, 0], 2) + pow(lidar_xy[j, 1], 2))
+            distance[j] = np.linalg.norm(lidar_xy[j, :])
         lidar_xy = np.dot(lidar_xy, [[-1, 0], [0, -1]])
         
         r.sleep()

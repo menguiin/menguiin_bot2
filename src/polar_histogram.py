@@ -24,7 +24,7 @@ def scan_callback(scan):
         lidar_xy[j, 0] = lidar_polar[j, 1] * cos(np.deg2rad(lidar_polar[j, 0]))
         lidar_xy[j, 1] = lidar_polar[j, 1] * sin(np.deg2rad(lidar_polar[j, 0]))
     lidar_xy = np.dot(lidar_xy, [[-1, 0], [0, -1]])
-    plt.plot(lidar_xy[:, 0], lidar_xy[:, 1])
+    plt.plot(lidar_xy[90:270, 0], lidar_xy[90:270, 1])
     plt.show()
     rate.sleep()
 

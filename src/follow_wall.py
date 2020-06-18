@@ -34,9 +34,9 @@ def clbk_laser(msg):
 
     regions_ = {
         # 'right':  min(min(scan_filter[80:120]), 3.5),
-        'fright': min(min(scan_filter[90:150]), 3.5),
-        'front':  min(min(scan_filter[151:210]), 3.5),
-        'fleft':  min(min(scan_filter[211:270]), 3.5),
+        'fright': min(min(scan_filter[100:160]), 3.5),
+        'front':  min(min(scan_filter[161:200]), 3.5),
+        'fleft':  min(min(scan_filter[201:260]), 3.5),
         # 'left':   min(min(scan_filter[241:280]), 3.5),
     }
 
@@ -56,16 +56,16 @@ def take_action():
     state_description = ''
     
     d = 0.25
-    f = 0.3
+    f = 0.25
     if regions['front'] > f and regions['fleft'] > f and regions['fright'] > d:
         state_description = 'case 1 - nothing'
         change_state(0)
     elif regions['front'] < f and regions['fleft'] > f and regions['fright'] > d:
         state_description = 'case 2 - front'
-        change_state(1)
+        change_state(2)
     elif regions['front'] > f and regions['fleft'] > f and regions['fright'] < d:
         state_description = 'case 3 - fright'
-        change_state(2)
+        change_state(3)
     elif regions['front'] > f and regions['fleft'] < f and regions['fright'] > d:
         state_description = 'case 4 - fleft'
         change_state(0)
@@ -74,38 +74,38 @@ def take_action():
         change_state(1)
     elif regions['front'] < f and regions['fleft'] < f and regions['fright'] > d:
         state_description = 'case 6 - front and fleft'
-        change_state(0)
+        change_state(2)
     elif regions['front'] < f and regions['fleft'] < f and regions['fright'] < d:
         state_description = 'case 7 - front and fleft and fright'
         change_state(1)
     elif regions['front'] > f and regions['fleft'] < f and regions['fright'] < d:
         state_description = 'case 8 - fleft and fright'
-        change_state(2)
+        change_state(3)
     else:
         state_description = 'unknown case'
         rospy.loginfo(regions)
 
 def find_wall():
     msg = Twist()
-    msg.linear.x = 0.1
-    msg.angular.z = -0.3
+    msg.linear.x = 0.22
+    msg.angular.z = -1.3
     return msg
 
 def turn_left():
     msg = Twist()
-    msg.angular.z = 0.3
+    msg.angular.z = 1.3
     return msg
 
 def turn_right():
     msg = Twist()
-    msg.angular.z = -0.3
+    msg.angular.z = -1.3
     return msg
 
 def follow_the_wall():
     global regions_
     
     msg = Twist()
-    msg.linear.x = 0.15
+    msg.linear.x = 0.22
     return msg
 
 def main():
@@ -124,9 +124,9 @@ def main():
             msg = find_wall()
         elif state_ == 1:
             msg = turn_left()
-        elif state_ == 2:
-            msg = follow_the_wall()
         elif state_ == 3:
+            msg = follow_the_wall()
+        elif state_ == 2:
             msg = turn_right()
             pass
         else:
