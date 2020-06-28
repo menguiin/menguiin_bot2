@@ -6,6 +6,7 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from tf import transformations
 import math
+from tf.transformations import euler_from_quaternion
 
 pub_ = None
 regions_ = {
@@ -19,8 +20,8 @@ state_ = 0
 state_dict_ = {
     0: 'find the wall',
     1: 'turn left',
-    2: 'follow the wall',
-    3: 'turn right'
+    2: 'turn right',
+    3: 'follow the wall'
 }
 
 def clbk_laser(msg):
@@ -33,36 +34,47 @@ def clbk_laser(msg):
             scan_filter[i] = 3.5
 
     regions_ = {
-        # 'right':  min(min(scan_filter[80:120]), 3.5),
-        'fright': min(min(scan_filter[100:160]), 3.5),
-        'front':  min(min(scan_filter[161:200]), 3.5),
-        'fleft':  min(min(scan_filter[201:260]), 3.5),
-        # 'left':   min(min(scan_filter[241:280]), 3.5),
+        #'right':  min(min(scan_filter[90:100]), 3.5),
+        'fright': min(min(scan_filter[110:170]), 3.5),
+        'front':  min(min(scan_filter[171:190]), 3.5),
+        'fleft':  min(min(scan_filter[191:250]), 3.5),
+        #'left':   min(min(scan_filter[261:270]), 3.5),
     }
 
     take_action()
+
+# def get_odom(odom):
+#     global position, rotation, velocity
+#     r = rospy.Rate(100)
+#     position = [odom.pose.pose.position.x, odom.pose.pose.position.y, 0]
+#     rotation = euler_from_quaternion([odom.pose.pose.orientation.x, odom.pose.pose.orientation.y, odom.pose.pose.orientation.z, odom.pose.pose.orientation.w]) 
+    
+   
+#     r.sleep()
+    
 
 def change_state(state):
     global state_, state_dict_
     if state is not state_:
         print 'Wall follower - [%s] - %s' % (state, state_dict_[state])
         state_ = state
-
+    
 def take_action():
     global regions_
     regions = regions_
     msg = Twist()
+    rate = rospy.Rate(50)
     
     state_description = ''
     
-    d = 0.25
-    f = 0.25
+    d = 0.3
+    f = 0.35
     if regions['front'] > f and regions['fleft'] > f and regions['fright'] > d:
         state_description = 'case 1 - nothing'
         change_state(0)
     elif regions['front'] < f and regions['fleft'] > f and regions['fright'] > d:
         state_description = 'case 2 - front'
-        change_state(2)
+        change_state(1)
     elif regions['front'] > f and regions['fleft'] > f and regions['fright'] < d:
         state_description = 'case 3 - fright'
         change_state(3)
@@ -74,7 +86,7 @@ def take_action():
         change_state(1)
     elif regions['front'] < f and regions['fleft'] < f and regions['fright'] > d:
         state_description = 'case 6 - front and fleft'
-        change_state(2)
+        change_state(1)
     elif regions['front'] < f and regions['fleft'] < f and regions['fright'] < d:
         state_description = 'case 7 - front and fleft and fright'
         change_state(1)
@@ -84,28 +96,29 @@ def take_action():
     else:
         state_description = 'unknown case'
         rospy.loginfo(regions)
+    
+    rate.sleep()
 
 def find_wall():
     msg = Twist()
-    msg.linear.x = 0.22
-    msg.angular.z = -1.3
+    msg.linear.x = 0.1
+    msg.angular.z = -0.5
     return msg
 
 def turn_left():
     msg = Twist()
-    msg.angular.z = 1.3
+    msg.angular.z = 0.5
+
     return msg
 
 def turn_right():
     msg = Twist()
-    msg.angular.z = -1.3
+    msg.angular.z = -0.5
     return msg
 
 def follow_the_wall():
-    global regions_
-    
     msg = Twist()
-    msg.linear.x = 0.22
+    msg.linear.x = 0.1
     return msg
 
 def main():
@@ -116,19 +129,20 @@ def main():
     pub_ = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
     
     rospy.Subscriber('/scan', LaserScan, clbk_laser)
-    
-    rate = rospy.Rate(20)
+    # rospy.Subscriber('/odom', Odometry, get_odom)
+
+    rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         msg = Twist()
         if state_ == 0:
             msg = find_wall()
         elif state_ == 1:
             msg = turn_left()
-        elif state_ == 3:
-            msg = follow_the_wall()
         elif state_ == 2:
             msg = turn_right()
-            pass
+        elif state_ == 3:
+            msg = follow_the_wall()
+        
         else:
             rospy.logerr('Unknown state!')
         
