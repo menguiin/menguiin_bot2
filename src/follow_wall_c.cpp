@@ -1,42 +1,28 @@
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
 #include <geometry_msgs/Twist.h>
+#include <nav_msgs/Odometry.h>
+#include <math.h>
 
+#define LINEAR_VEL = 0.22;
+#define ANGULAR_VEL = 1.0;
 
-#define LINEAR_VEL 0.22
-#define ANGULAR_VEL 1.0
+static geometry_msgs::Twist vel;
 
-geometry_msgs::Twist vel;
-
-void scanCallbak(sensor_msgs::LaserScan::ConstPtr &scan)
+void scanCallback(const sensor_msgs::LaserScan::ConstPtr &scan)
 {
-    int angle;
-    double left_distance, right_distance, front_distance, fleft_distance, fright_distance;
-    double scan_filter = [360];
-
-    for(angle=0;angle<=359;angle++)
-    {
-        scan_filter[angle] = scan.ranges[angle];
-        if(scan.ranges>0)
-        {
-            scan_filter[angle] = 3.5;
-        }
-    }
-
-    for(angle=0;angle<=359;angle++)
-    {
-        scan_filter
-    }
+    float regions, angle;
+    for(angle=0; angle<)
 }
-
 
 int main(int argc, char **argv)
 {
     using namespace ros;
-    init(argc, argv, "follow_wall");
+    init(argc, argv, "motor_on");
     NodeHandle nh;
-    Subscriber nh.subscribe("/scan", 1, scanCallback);
-    Publisher nh.advertise<geometry::Twist>("/cmd_vel", 1);
+    Subscriber laser_sub = nh.Subscriber("/scan", 1, scanCallback);
+    Publisher vel_pub = nh.advertise<geometry::Twist>("/cmd_vel", 1);
+    Rate loop_rate(10);
 
     while(ok())
     {
