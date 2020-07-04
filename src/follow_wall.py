@@ -11,9 +11,7 @@ from tf.transformations import euler_from_quaternion
 pub_ = None
 regions_ = {
     'right': 0,
-    'fright': 0,
     'front': 0,
-    'fleft': 0,
     'left': 0,
 }
 state_ = 0
@@ -26,6 +24,7 @@ state_dict_ = {
 
 def clbk_laser(msg):
     global regions_
+    r = rospy.Rate(100)
     scan_filter = []
 
     for i in range(0, 359):
@@ -34,24 +33,13 @@ def clbk_laser(msg):
             scan_filter[i] = 3.5
 
     regions_ = {
-        #'right':  min(min(scan_filter[90:100]), 3.5),
-        'fright': min(min(scan_filter[110:170]), 3.5),
+        'right': min(min(scan_filter[110:170]), 3.5),
         'front':  min(min(scan_filter[171:190]), 3.5),
-        'fleft':  min(min(scan_filter[191:250]), 3.5),
-        #'left':   min(min(scan_filter[261:270]), 3.5),
+        'left':  min(min(scan_filter[191:250]), 3.5)
     }
 
     take_action()
-
-# def get_odom(odom):
-#     global position, rotation, velocity
-#     r = rospy.Rate(100)
-#     position = [odom.pose.pose.position.x, odom.pose.pose.position.y, 0]
-#     rotation = euler_from_quaternion([odom.pose.pose.orientation.x, odom.pose.pose.orientation.y, odom.pose.pose.orientation.z, odom.pose.pose.orientation.w]) 
-    
-   
-#     r.sleep()
-    
+    r.sleep()   
 
 def change_state(state):
     global state_, state_dict_
@@ -68,30 +56,29 @@ def take_action():
     state_description = ''
     
     d = 0.3
-    f = 0.35
-    if regions['front'] > f and regions['fleft'] > f and regions['fright'] > d:
+    if regions['front'] > d and regions['left'] > d and regions['right'] > d:
         state_description = 'case 1 - nothing'
         change_state(0)
-    elif regions['front'] < f and regions['fleft'] > f and regions['fright'] > d:
+    elif regions['front'] < d and regions['left'] > d and regions['right'] > d:
         state_description = 'case 2 - front'
         change_state(1)
-    elif regions['front'] > f and regions['fleft'] > f and regions['fright'] < d:
-        state_description = 'case 3 - fright'
+    elif regions['front'] > d and regions['left'] > d and regions['right'] < d:
+        state_description = 'case 3 - right'
         change_state(3)
-    elif regions['front'] > f and regions['fleft'] < f and regions['fright'] > d:
-        state_description = 'case 4 - fleft'
+    elif regions['front'] > d and regions['left'] < d and regions['right'] > d:
+        state_description = 'case 4 - left'
         change_state(0)
-    elif regions['front'] < f and regions['fleft'] > f and regions['fright'] < d:
-        state_description = 'case 5 - front and fright'
+    elif regions['front'] < d and regions['left'] > d and regions['right'] < d:
+        state_description = 'case 5 - front and right'
         change_state(1)
-    elif regions['front'] < f and regions['fleft'] < f and regions['fright'] > d:
-        state_description = 'case 6 - front and fleft'
+    elif regions['front'] < d and regions['left'] < d and regions['right'] > d:
+        state_description = 'case 6 - front and left'
         change_state(1)
-    elif regions['front'] < f and regions['fleft'] < f and regions['fright'] < d:
-        state_description = 'case 7 - front and fleft and fright'
+    elif regions['front'] < d and regions['left'] < d and regions['right'] < d:
+        state_description = 'case 7 - front and left and right'
         change_state(1)
-    elif regions['front'] > f and regions['fleft'] < f and regions['fright'] < d:
-        state_description = 'case 8 - fleft and fright'
+    elif regions['front'] > d and regions['left'] < d and regions['right'] < d:
+        state_description = 'case 8 - left and right'
         change_state(3)
     else:
         state_description = 'unknown case'
@@ -121,17 +108,12 @@ def follow_the_wall():
     msg.linear.x = 0.1
     return msg
 
-def main():
-    global pub_
-    
+def main():   
     rospy.init_node('follow_wall')
-    
     pub_ = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
-    
     rospy.Subscriber('/scan', LaserScan, clbk_laser)
-    # rospy.Subscriber('/odom', Odometry, get_odom)
 
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(100)
     while not rospy.is_shutdown():
         msg = Twist()
         if state_ == 0:
